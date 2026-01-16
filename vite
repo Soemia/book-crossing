@@ -1,0 +1,19 @@
+import { defineConfig } from &#39;vite&#39;
+import path from &#39;path&#39;
+import tailwindcss from &#39;@tailwindcss/vite&#39;
+import react from &#39;@vitejs/plugin-react&#39;
+
+export default defineConfig({
+plugins: [
+// The React and Tailwind plugins are both required for Make, even if
+// Tailwind is not being actively used – do not remove them
+react(),
+tailwindcss(),
+],
+resolve: {
+alias: {
+// Alias @ to the src directory
+&#39;@&#39;: path.resolve(__dirname, &#39;./src&#39;),
+},
+},
+})

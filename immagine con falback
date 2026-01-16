@@ -1,0 +1,29 @@
+import React, { useState } from &#39;react&#39;
+
+const ERROR_IMG_SRC =
+&#39;data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3Lnc
+zLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIg
+ZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2
+IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48
+L3N2Zz4KCg==&#39;
+
+export function ImageWithFallback(props: React.ImgHTMLAttributes&lt;HTMLImageElement&gt;) {
+const [didError, setDidError] = useState(false)
+
+const handleError = () =&gt; {
+setDidError(true)
+}
+
+const { src, alt, style, className, ...rest } = props
+
+return didError ? (
+&lt;div
+className={`inline-block bg-gray-100 text-center align-middle ${className ?? &#39;&#39;}`}
+style={style}
+&gt;
+&lt;div className=&quot;flex items-center justify-center w-full h-full&quot;&gt;
+&lt;img src={ERROR_IMG_SRC} alt=&quot;Error loading image&quot; {...rest} data-original-url={src} /&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+) : (
+&lt;img src={src} alt={alt} className={className} style={style} {...rest} onError={handleError} /&gt;

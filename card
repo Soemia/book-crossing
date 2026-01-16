@@ -1,0 +1,94 @@
+import * as React from &quot;react&quot;;
+
+import { cn } from &quot;./utils&quot;;
+
+function Card({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;div
+data-slot=&quot;card&quot;
+className={cn(
+&quot;bg-card text-card-foreground flex flex-col gap-6 rounded-xl border&quot;,
+className,
+)}
+{...props}
+/&gt;
+);
+}
+
+function CardHeader({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;div
+data-slot=&quot;card-header&quot;
+className={cn(
+&quot;@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-
+data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6&quot;,
+className,
+)}
+{...props}
+/&gt;
+);
+}
+
+function CardTitle({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+
+return (
+&lt;h4
+data-slot=&quot;card-title&quot;
+className={cn(&quot;leading-none&quot;, className)}
+{...props}
+/&gt;
+);
+}
+
+function CardDescription({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;p
+data-slot=&quot;card-description&quot;
+className={cn(&quot;text-muted-foreground&quot;, className)}
+{...props}
+/&gt;
+);
+}
+
+function CardAction({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;div
+data-slot=&quot;card-action&quot;
+className={cn(
+&quot;col-start-2 row-span-2 row-start-1 self-start justify-self-end&quot;,
+className,
+)}
+{...props}
+/&gt;
+);
+}
+
+function CardContent({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;div
+data-slot=&quot;card-content&quot;
+className={cn(&quot;px-6 [&amp;:last-child]:pb-6&quot;, className)}
+{...props}
+/&gt;
+);
+}
+
+function CardFooter({ className, ...props }: React.ComponentProps&lt;&quot;div&quot;&gt;) {
+return (
+&lt;div
+data-slot=&quot;card-footer&quot;
+className={cn(&quot;flex items-center px-6 pb-6 [.border-t]:pt-6&quot;, className)}
+{...props}
+/&gt;
+);
+}
+
+export {
+Card,
+CardHeader,
+CardFooter,
+CardTitle,
+CardAction,
+CardDescription,
+CardContent,
+};

@@ -1,0 +1,63 @@
+&quot;use client&quot;;
+
+import * as React from &quot;react&quot;;
+import { GripVerticalIcon } from &quot;lucide-react&quot;;
+import * as ResizablePrimitive from &quot;react-resizable-panels&quot;;
+
+import { cn } from &quot;./utils&quot;;
+
+function ResizablePanelGroup({
+className,
+...props
+}: React.ComponentProps&lt;typeof ResizablePrimitive.PanelGroup&gt;) {
+return (
+&lt;ResizablePrimitive.PanelGroup
+data-slot=&quot;resizable-panel-group&quot;
+className={cn(
+&quot;flex h-full w-full data-[panel-group-direction=vertical]:flex-col&quot;,
+className,
+)}
+{...props}
+/&gt;
+);
+}
+
+function ResizablePanel({
+...props
+}: React.ComponentProps&lt;typeof ResizablePrimitive.Panel&gt;) {
+return &lt;ResizablePrimitive.Panel data-slot=&quot;resizable-panel&quot; {...props} /&gt;;
+}
+
+function ResizableHandle({
+withHandle,
+
+className,
+...props
+}: React.ComponentProps&lt;typeof ResizablePrimitive.PanelResizeHandle&gt; &amp; {
+withHandle?: boolean;
+}) {
+return (
+&lt;ResizablePrimitive.PanelResizeHandle
+data-slot=&quot;resizable-handle&quot;
+className={cn(
+&quot;bg-border focus-visible:ring-ring relative flex w-px items-center justify-center after:absolute
+after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-offset-1
+focus-visible:outline-hidden data-[panel-group-direction=vertical]:h-px data-[panel-group-
+direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-
+direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-
+direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&amp;[data-
+panel-group-direction=vertical]&gt;div]:rotate-90&quot;,
+className,
+)}
+{...props}
+&gt;
+{withHandle &amp;&amp; (
+&lt;div className=&quot;bg-border z-10 flex h-4 w-3 items-center justify-center rounded-xs border&quot;&gt;
+&lt;GripVerticalIcon className=&quot;size-2.5&quot; /&gt;
+&lt;/div&gt;
+)}
+&lt;/ResizablePrimitive.PanelResizeHandle&gt;
+);
+}
+
+export { ResizablePanelGroup, ResizablePanel, ResizableHandle };

@@ -1,0 +1,233 @@
+import { useParams, Link } from &#39;react-router-dom&#39;;
+import { mockBooks } from &#39;@/data/mockData&#39;;
+import { Button } from &#39;@/app/components/ui/button&#39;;
+import { Badge } from &#39;@/app/components/ui/badge&#39;;
+import { Card, CardContent } from &#39;@/app/components/ui/card&#39;;
+import { Avatar, AvatarImage, AvatarFallback } from &#39;@/app/components/ui/avatar&#39;;
+import { Separator } from &#39;@/app/components/ui/separator&#39;;
+import {
+Dialog,
+DialogContent,
+DialogDescription,
+DialogHeader,
+DialogTitle,
+DialogTrigger,
+} from &#39;@/app/components/ui/dialog&#39;;
+import { Textarea } from &#39;@/app/components/ui/textarea&#39;;
+import { Label } from &#39;@/app/components/ui/label&#39;;
+import {
+ArrowLeft,
+MapPin,
+Eye,
+Star,
+MessageSquare,
+Share2,
+Calendar,
+BookOpen,
+} from &#39;lucide-react&#39;;
+import { useState } from &#39;react&#39;;
+import { toast } from &#39;sonner&#39;;
+
+export function BookDetailPage() {
+const { id } = useParams();
+
+const book = mockBooks.find((b) =&gt; b.id === id);
+const [message, setMessage] = useState(&#39;&#39;);
+
+if (!book) {
+return (
+&lt;div className=&quot;min-h-screen flex items-center justify-center&quot;&gt;
+&lt;div className=&quot;text-center&quot;&gt;
+&lt;h2 className=&quot;text-2xl font-bold mb-2&quot;&gt;Libro non trovato&lt;/h2&gt;
+&lt;Link to=&quot;/&quot;&gt;
+&lt;Button&gt;Torna alla home&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+);
+}
+
+const handleRequestLoan = () =&gt; {
+toast.success(&#39;Richiesta di prestito inviata!&#39;);
+setMessage(&#39;&#39;);
+};
+
+return (
+&lt;div className=&quot;min-h-screen bg-background&quot;&gt;
+{/* Header */}
+&lt;header className=&quot;border-b bg-white&quot;&gt;
+&lt;div className=&quot;container mx-auto px-4 py-4&quot;&gt;
+&lt;Link to=&quot;/&quot;&gt;
+&lt;Button variant=&quot;ghost&quot; size=&quot;sm&quot;&gt;
+&lt;ArrowLeft className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Torna ai risultati
+&lt;/Button&gt;
+&lt;/Link&gt;
+
+&lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main className=&quot;container mx-auto px-4 py-8&quot;&gt;
+&lt;div className=&quot;grid md:grid-cols-3 gap-8&quot;&gt;
+{/* Book Cover */}
+&lt;div className=&quot;md:col-span-1&quot;&gt;
+&lt;div className=&quot;sticky top-8&quot;&gt;
+&lt;img
+src={book.cover}
+alt={book.title}
+className=&quot;w-full rounded-lg shadow-lg mb-4&quot;
+/&gt;
+{book.available ? (
+&lt;Dialog&gt;
+&lt;DialogTrigger asChild&gt;
+&lt;Button className=&quot;w-full&quot; size=&quot;lg&quot;&gt;
+&lt;MessageSquare className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Richiedi Prestito
+&lt;/Button&gt;
+&lt;/DialogTrigger&gt;
+&lt;DialogContent&gt;
+&lt;DialogHeader&gt;
+&lt;DialogTitle&gt;Richiedi prestito&lt;/DialogTitle&gt;
+&lt;DialogDescription&gt;
+Invia un messaggio a {book.owner.name} per richiedere il
+prestito di questo libro.
+&lt;/DialogDescription&gt;
+&lt;/DialogHeader&gt;
+&lt;div className=&quot;space-y-4 py-4&quot;&gt;
+&lt;div&gt;
+&lt;Label htmlFor=&quot;message&quot;&gt;Messaggio&lt;/Label&gt;
+
+&lt;Textarea
+id=&quot;message&quot;
+placeholder=&quot;Ciao! Sono interessato al tuo libro...&quot;
+value={message}
+onChange={(e) =&gt; setMessage(e.target.value)}
+rows={4}
+/&gt;
+&lt;/div&gt;
+&lt;Button
+onClick={handleRequestLoan}
+className=&quot;w-full&quot;
+disabled={!message.trim()}
+&gt;
+Invia Richiesta
+&lt;/Button&gt;
+&lt;/div&gt;
+&lt;/DialogContent&gt;
+&lt;/Dialog&gt;
+) : (
+&lt;Button className=&quot;w-full&quot; size=&quot;lg&quot; disabled&gt;
+Non Disponibile
+&lt;/Button&gt;
+)}
+&lt;Button variant=&quot;outline&quot; className=&quot;w-full mt-2&quot;&gt;
+&lt;Share2 className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Condividi
+&lt;/Button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+{/* Book Details */}
+&lt;div className=&quot;md:col-span-2 space-y-6&quot;&gt;
+
+&lt;div&gt;
+&lt;h1 className=&quot;text-3xl font-bold mb-2&quot;&gt;{book.title}&lt;/h1&gt;
+&lt;p className=&quot;text-xl text-muted-foreground mb-4&quot;&gt;{book.author}&lt;/p&gt;
+&lt;div className=&quot;flex flex-wrap gap-2 mb-4&quot;&gt;
+{book.categories.map((category) =&gt; (
+&lt;Badge key={category} variant=&quot;secondary&quot;&gt;
+{category}
+&lt;/Badge&gt;
+))}
+&lt;/div&gt;
+&lt;div className=&quot;flex items-center gap-6 text-sm text-muted-foreground mb-4&quot;&gt;
+&lt;div className=&quot;flex items-center gap-1&quot;&gt;
+&lt;Calendar className=&quot;w-4 h-4&quot; /&gt;
+&lt;span&gt;Anno: {book.year}&lt;/span&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex items-center gap-1&quot;&gt;
+&lt;Eye className=&quot;w-4 h-4&quot; /&gt;
+&lt;span&gt;{book.views} visualizzazioni&lt;/span&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex items-center gap-1&quot;&gt;
+&lt;BookOpen className=&quot;w-4 h-4&quot; /&gt;
+&lt;span&gt;Condizione: {book.condition}&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;Separator /&gt;
+
+{/* Description */}
+&lt;div&gt;
+&lt;h3 className=&quot;text-lg font-semibold mb-2&quot;&gt;Descrizione&lt;/h3&gt;
+&lt;p className=&quot;text-muted-foreground leading-relaxed&quot;&gt;
+
+{book.description}
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;Separator /&gt;
+
+{/* Owner Info */}
+&lt;Card&gt;
+&lt;CardContent className=&quot;p-6&quot;&gt;
+&lt;h3 className=&quot;text-lg font-semibold mb-4&quot;&gt;Proprietario&lt;/h3&gt;
+&lt;div className=&quot;flex items-start gap-4&quot;&gt;
+&lt;Avatar className=&quot;w-16 h-16&quot;&gt;
+&lt;AvatarImage src={book.owner.avatar} /&gt;
+&lt;AvatarFallback&gt;{book.owner.name[0]}&lt;/AvatarFallback&gt;
+&lt;/Avatar&gt;
+&lt;div className=&quot;flex-1&quot;&gt;
+&lt;div className=&quot;flex items-center gap-2 mb-1&quot;&gt;
+&lt;h4 className=&quot;font-semibold&quot;&gt;{book.owner.name}&lt;/h4&gt;
+&lt;div className=&quot;flex items-center gap-1&quot;&gt;
+&lt;Star className=&quot;w-4 h-4 fill-yellow-400 text-yellow-400&quot; /&gt;
+&lt;span className=&quot;text-sm&quot;&gt;{book.owner.rating}&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex items-center gap-1 text-sm text-muted-foreground mb-2&quot;&gt;
+&lt;MapPin className=&quot;w-4 h-4&quot; /&gt;
+&lt;span&gt;{book.owner.location.address}&lt;/span&gt;
+&lt;/div&gt;
+&lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;
+{book.owner.booksCount} libri condivisi
+&lt;/p&gt;
+&lt;Button variant=&quot;outline&quot; size=&quot;sm&quot; className=&quot;mt-3&quot;&gt;
+Vedi collezione
+
+&lt;/Button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+{book.isbn &amp;&amp; (
+&lt;&gt;
+&lt;Separator /&gt;
+&lt;div&gt;
+&lt;h3 className=&quot;text-lg font-semibold mb-2&quot;&gt;
+Informazioni aggiuntive
+&lt;/h3&gt;
+&lt;div className=&quot;grid grid-cols-2 gap-4 text-sm&quot;&gt;
+&lt;div&gt;
+&lt;span className=&quot;text-muted-foreground&quot;&gt;ISBN:&lt;/span&gt;
+&lt;span className=&quot;ml-2 font-mono&quot;&gt;{book.isbn}&lt;/span&gt;
+&lt;/div&gt;
+&lt;div&gt;
+&lt;span className=&quot;text-muted-foreground&quot;&gt;
+Richieste di prestito:
+&lt;/span&gt;
+&lt;span className=&quot;ml-2&quot;&gt;{book.loanRequests}&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/&gt;
+)}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/main&gt;
+&lt;/div&gt;
+
+);
+}

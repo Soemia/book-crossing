@@ -1,0 +1,203 @@
+-- Database Schema for BiblioShare
+-- Geolocation-based Book Sharing Platform
+
+-- Enable PostGIS extension for geospatial queries
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- Users table
+CREATE TABLE users (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+name VARCHAR(255) NOT NULL,
+email VARCHAR(255) UNIQUE NOT NULL,
+password_hash VARCHAR(255) NOT NULL,
+avatar_url TEXT,
+location GEOGRAPHY(POINT, 4326) NOT NULL, -- Geospatial point (lat, lng)
+address TEXT NOT NULL,
+books_count INTEGER DEFAULT 0,
+rating DECIMAL(3,2) DEFAULT 0,
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create spatial index for location-based queries
+CREATE INDEX idx_users_location ON users USING GIST(location);
+
+-- Books table
+CREATE TABLE books (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+title VARCHAR(500) NOT NULL,
+author VARCHAR(255) NOT NULL,
+year INTEGER NOT NULL,
+isbn VARCHAR(20),
+cover_url TEXT NOT NULL,
+
+description TEXT,
+condition VARCHAR(20) CHECK (condition IN (&#39;excellent&#39;, &#39;good&#39;, &#39;fair&#39;, &#39;poor&#39;)),
+owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+views INTEGER DEFAULT 0,
+loan_requests_count INTEGER DEFAULT 0,
+available BOOLEAN DEFAULT TRUE,
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create index for owner_id
+CREATE INDEX idx_books_owner_id ON books(owner_id);
+
+-- Book categories table
+CREATE TABLE categories (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) UNIQUE NOT NULL,
+created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Book-Category relationship (many-to-many)
+CREATE TABLE book_categories (
+book_id UUID REFERENCES books(id) ON DELETE CASCADE,
+category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE,
+PRIMARY KEY (book_id, category_id)
+);
+
+-- Loan requests table
+CREATE TABLE loan_requests (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+book_id UUID REFERENCES books(id) ON DELETE CASCADE,
+requester_id UUID REFERENCES users(id) ON DELETE CASCADE,
+
+owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+message TEXT,
+status VARCHAR(20) CHECK (status IN (&#39;pending&#39;, &#39;accepted&#39;, &#39;rejected&#39;, &#39;completed&#39;)),
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for loan_requests
+CREATE INDEX idx_loan_requests_book_id ON loan_requests(book_id);
+CREATE INDEX idx_loan_requests_requester_id ON loan_requests(requester_id);
+CREATE INDEX idx_loan_requests_owner_id ON loan_requests(owner_id);
+
+-- Book views statistics table
+CREATE TABLE book_views (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+book_id UUID REFERENCES books(id) ON DELETE CASCADE,
+viewer_id UUID REFERENCES users(id) ON DELETE SET NULL,
+viewed_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for analytics
+CREATE INDEX idx_book_views_book_id ON book_views(book_id);
+CREATE INDEX idx_book_views_viewed_at ON book_views(viewed_at);
+
+-- Insert sample categories
+INSERT INTO categories (name) VALUES
+(&#39;Fiction&#39;),
+(&#39;Non-Fiction&#39;),
+(&#39;Mystery&#39;),
+(&#39;Romance&#39;),
+(&#39;Science Fiction&#39;),
+(&#39;Fantasy&#39;),
+
+(&#39;Thriller&#39;),
+(&#39;Biography&#39;),
+(&#39;History&#39;),
+(&#39;Philosophy&#39;),
+(&#39;Poetry&#39;),
+(&#39;Drama&#39;),
+(&#39;Children&#39;),
+(&#39;Young Adult&#39;),
+(&#39;Classic&#39;),
+(&#39;Contemporary&#39;);
+
+-- Function to calculate distance between users and books
+CREATE OR REPLACE FUNCTION nearby_books(
+user_location GEOGRAPHY,
+max_distance_meters INTEGER DEFAULT 10000
+)
+RETURNS TABLE (
+book_id UUID,
+title VARCHAR,
+author VARCHAR,
+distance_meters DOUBLE PRECISION
+) AS $$
+BEGIN
+RETURN QUERY
+SELECT
+b.id,
+b.title,
+b.author,
+ST_Distance(user_location, u.location) as distance_meters
+FROM books b
+JOIN users u ON b.owner_id = u.id
+WHERE ST_DWithin(user_location, u.location, max_distance_meters)
+
+AND b.available = TRUE
+ORDER BY distance_meters;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to update book statistics
+CREATE OR REPLACE FUNCTION update_book_stats()
+RETURNS TRIGGER AS $$
+BEGIN
+IF TG_OP = &#39;INSERT&#39; THEN
+IF TG_TABLE_NAME = &#39;book_views&#39; THEN
+UPDATE books SET views = views + 1 WHERE id = NEW.book_id;
+ELSIF TG_TABLE_NAME = &#39;loan_requests&#39; THEN
+UPDATE books SET loan_requests_count = loan_requests_count + 1 WHERE id = NEW.book_id;
+END IF;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create triggers for automatic statistics updates
+CREATE TRIGGER trigger_update_book_views
+AFTER INSERT ON book_views
+FOR EACH ROW EXECUTE FUNCTION update_book_stats();
+
+CREATE TRIGGER trigger_update_loan_requests
+AFTER INSERT ON loan_requests
+FOR EACH ROW EXECUTE FUNCTION update_book_stats();
+
+-- Function to update user book count
+CREATE OR REPLACE FUNCTION update_user_books_count()
+RETURNS TRIGGER AS $$
+
+BEGIN
+IF TG_OP = &#39;INSERT&#39; THEN
+UPDATE users SET books_count = books_count + 1 WHERE id = NEW.owner_id;
+ELSIF TG_OP = &#39;DELETE&#39; THEN
+UPDATE users SET books_count = books_count - 1 WHERE id = OLD.owner_id;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger for automatic user books count
+CREATE TRIGGER trigger_update_user_books_count
+AFTER INSERT OR DELETE ON books
+FOR EACH ROW EXECUTE FUNCTION update_user_books_count();
+
+-- Sample query examples:
+
+-- Find books within 10km of a specific location (Rome center)
+-- SELECT * FROM nearby_books(ST_SetSRID(ST_MakePoint(12.4964, 41.9028), 4326), 10000);
+
+-- Search books by title and author
+-- SELECT b.*, u.name as owner_name, u.location
+-- FROM books b
+-- JOIN users u ON b.owner_id = u.id
+-- WHERE b.title ILIKE &#39;%rosa%&#39; OR b.author ILIKE &#39;%eco%&#39;;
+
+-- Get user statistics
+-- SELECT
+-- u.name,
+-- u.books_count,
+-- COUNT(DISTINCT lr.id) as total_requests,
+-- AVG(b.views) as avg_views_per_book
+
+-- FROM users u
+-- LEFT JOIN books b ON u.id = b.owner_id
+-- LEFT JOIN loan_requests lr ON b.id = lr.book_id
+-- WHERE u.id = &#39;user-uuid&#39;
+-- GROUP BY u.id, u.name, u.books_count;

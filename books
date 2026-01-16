@@ -1,0 +1,53 @@
+// Types for the book geolocation application
+
+export interface User {
+id: string;
+name: string;
+email: string;
+avatar: string;
+location: {
+lat: number;
+lng: number;
+address: string;
+};
+booksCount: number;
+rating: number;
+}
+
+export interface Book {
+id: string;
+title: string;
+author: string;
+year: number;
+isbn?: string;
+cover: string;
+categories: string[];
+description: string;
+condition: &#39;excellent&#39; | &#39;good&#39; | &#39;fair&#39; | &#39;poor&#39;;
+owner: User;
+views: number;
+loanRequests: number;
+available: boolean;
+createdAt: Date;
+}
+
+export interface LoanRequest {
+id: string;
+book: Book;
+requester: User;
+message: string;
+status: &#39;pending&#39; | &#39;accepted&#39; | &#39;rejected&#39;;
+createdAt: Date;
+}
+
+export interface Statistics {
+totalBooks: number;
+totalViews: number;
+totalLoanRequests: number;
+totalUsers: number;
+recentActivity: {
+date: string;
+views: number;
+requests: number;
+}[];
+}

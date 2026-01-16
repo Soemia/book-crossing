@@ -1,0 +1,300 @@
+# BiblioShare - Rapporto Tecnico
+## Sistema di Geolocalizzazione Culturale per la Condivisione del Patrimonio Librario
+
+### 1. Analisi del Contesto Operativo
+
+**Ambito**: Città di Roma e aree limitrofe
+
+**Problema**: La mancanza di visibilità e strumenti di condivisione per il patrimonio librario privato
+(collezioni, biblioteche domestiche, raccolte tematiche).
+
+**Soluzione**: Piattaforma web che consente agli utenti di:
+- Pubblicare il proprio patrimonio librario
+- Ricercare libri nelle vicinanze
+- Gestire richieste di prestito
+- Visualizzare statistiche d&#39;uso
+
+### 2. Requisiti Funzionali
+
+#### 2.1 Gestione Utenti
+- Registrazione e autenticazione utenti
+- Creazione e modifica profilo personale
+- Gestione della posizione geografica
+- Sistema di valutazione (rating)
+
+#### 2.2 Gestione Libri
+- Pubblicazione di libri con metadati completi
+- Titolo, autore, anno, ISBN
+- Categorie
+- Descrizione
+- Condizione del libro
+- Upload e gestione immagini copertina
+- Generazione automatica di miniature
+
+- Modifica e cancellazione libri
+
+#### 2.3 Ricerca e Geolocalizzazione
+- Ricerca testuale (titolo, autore, categoria)
+- Ricerca spaziale con filtri di distanza (5km, 10km, 20km, 50km)
+- Visualizzazione su mappa interattiva
+- Ordinamento per rilevanza e distanza
+
+#### 2.4 Sistema di Prestito
+- Richiesta di prestito con messaggio personalizzato
+- Gestione stato richieste (pending, accepted, rejected, completed)
+- Notifiche per proprietari
+
+#### 2.5 Statistiche e Analytics
+- Visualizzazioni per libro
+- Numero richieste di prestito
+- Grafici di attività recente
+- Dashboard amministrativa
+- Libri più popolari
+
+### 3. Requisiti Non Funzionali
+
+#### 3.1 Privacy
+- Protezione dati personali (GDPR compliant)
+- Consenso esplicito per condivisione posizione
+- Controllo visibilità profilo e libri
+- Anonimizzazione dati analytics
+
+#### 3.2 Performance
+- Tempo di risposta &lt; 2 secondi per ricerche
+- Ottimizzazione query geospaziali con indici PostGIS
+- Lazy loading immagini
+
+- Caching per dati frequenti
+
+#### 3.3 Accessibilità
+- WCAG 2.1 Level AA compliance
+- Navigazione da tastiera
+- Screen reader friendly
+- Contrasto colori adeguato
+- Responsive design (mobile-first)
+
+#### 3.4 Scalabilità
+- Architettura modulare
+- Supporto per migliaia di utenti concorrenti
+- Database ottimizzato con indici geospaziali
+- CDN per contenuti statici
+
+### 4. Architettura e Tecnologie
+
+#### 4.1 Stack Tecnologico
+
+**Frontend**:
+- **React 18.3.1**: Framework UI
+- **TypeScript**: Type safety
+- **Tailwind CSS 4.1**: Styling
+- **React Router Dom 7.12**: Routing
+- **React Leaflet 5.0**: Mappe interattive
+- **Recharts 2.15**: Visualizzazione dati
+- **Shadcn/ui**: Component library
+- **Sonner**: Toast notifications
+
+**Backend (Proposto)**:
+- **PostgreSQL + PostGIS**: Database con supporto geospaziale
+- **Node.js + Express**: API REST
+
+- **Supabase**: Backend-as-a-Service (opzionale)
+
+**Storage**:
+- **S3-compatible**: Storage immagini
+- **CDN**: Delivery ottimizzata
+
+#### 4.2 Architettura Applicazione
+
+```
+┌─────────────────────────────────────────┐
+│ React Frontend │
+│ ┌─────────────────────────────────┐ │
+│ │ Pages │ │
+│ │ - HomePage │ │
+│ │ - BookDetailPage │ │
+│ │ - MyLibraryPage │ │
+│ │ - AddBookPage │ │
+│ └─────────────────────────────────┘ │
+│ ┌─────────────────────────────────┐ │
+│ │ Components │ │
+│ │ - BookCard │ │
+│ │ - SearchBar │ │
+│ │ - MapView │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+↓
+┌─────────────────────────────────────────┐
+│ API Layer │
+│ - REST endpoints │
+│ - Authentication │
+│ - File upload │
+└─────────────────────────────────────────┘
+
+↓
+┌─────────────────────────────────────────┐
+│ PostgreSQL + PostGIS │
+│ - Tabelle Users, Books, Categories │
+│ - Indici geospaziali │
+│ - Query optimization │
+└─────────────────────────────────────────┘
+```
+
+### 5. Design UX e Accessibilità
+
+#### 5.1 Principi di Design
+- **Semplicità**: Interfaccia intuitiva, pochi click per azione
+- **Coerenza**: Design system uniforme
+- **Feedback**: Conferme visive per ogni azione
+- **Responsive**: Ottimizzato per desktop, tablet, mobile
+
+#### 5.2 Scelte di Accessibilità
+- Testi leggibili (contrasto 4.5:1 minimo)
+- Navigazione tastiera completa
+- ARIA labels per screen readers
+- Focus indicators visibili
+- Dimensioni touch target &gt;= 44px
+- Testi alternativi per immagini
+
+#### 5.3 User Flow Principali
+
+**Pubblicazione libro**:
+1. Click &quot;Aggiungi Libro&quot;
+2. Upload copertina
+3. Compilazione metadati
+4. Selezione categorie
+
+5. Pubblicazione
+6. Conferma visiva
+
+**Ricerca e prestito**:
+1. Ricerca testuale/geografica
+2. Visualizzazione risultati (griglia/mappa)
+3. Click su libro
+4. Visualizzazione dettagli
+5. Richiesta prestito
+6. Invio messaggio
+
+### 6. Gestione Dati Geospaziali
+
+#### 6.1 PostGIS
+- Campo `location` di tipo `GEOGRAPHY(POINT, 4326)`
+- Coordinate in formato WGS84 (lat, lng)
+- Indice GIST per query veloci
+
+#### 6.2 Query Geospaziali
+```sql
+-- Trova libri entro N km
+SELECT b.*, ST_Distance(u.location, $user_location) as distance
+FROM books b
+JOIN users u ON b.owner_id = u.id
+WHERE ST_DWithin(u.location, $user_location, $max_distance)
+ORDER BY distance;
+```
+
+#### 6.3 Filtri Spaziali
+- Distanza: 5km, 10km, 20km, 50km
+- Area: quartiere, città
+- Visualizzazione mappa con markers
+
+### 7. Gestione Immagini
+
+#### 7.1 Upload
+- Formati supportati: JPG, PNG
+- Dimensione max: 5MB
+- Validazione client-side e server-side
+
+#### 7.2 Processamento
+- Resize automatico per miniature
+- Generazione thumbnail (150x200px)
+- Generazione preview (300x400px)
+- Compressione ottimizzata
+
+#### 7.3 Storage
+- S3-compatible object storage
+- URL pubblici per thumbnails
+- CDN per delivery
+
+### 8. Statistiche e Metriche
+
+#### 8.1 Metriche Raccolte
+- Visualizzazioni libro (con timestamp)
+- Richieste prestito
+- Utenti unici
+- Attività giornaliera
+
+#### 8.2 Dashboard
+- Grafici temporali (visualizzazioni, richieste)
+- Top libri per popolarità
+- Statistiche utente
+- Trend settimanali/mensili
+
+#### 8.3 Privacy
+- Dati aggregati anonimi
+- No tracking cross-site
+- Opt-out analytics
+
+### 9. Privacy e Consenso
+
+#### 9.1 Dati Personali
+- Nome, email (obbligatori)
+- Posizione geografica (con consenso)
+- Avatar (opzionale)
+
+#### 9.2 Consensi
+- Consenso esplicito per geolocalizzazione
+- Opt-in per notifiche
+- Controllo visibilità profilo
+
+#### 9.3 Sicurezza
+- Password hashing (bcrypt)
+- HTTPS obbligatorio
+- Rate limiting API
+- Validazione input
+- XSS protection
+
+### 10. Testing
+
+#### 10.1 Test Funzionali
+- Unit test componenti React
+- Integration test API
+- E2E test user flows
+
+#### 10.2 Test Non Funzionali
+- Performance testing (load test)
+- Accessibility audit (axe-core)
+- Security scanning
+- Browser compatibility
+
+### 11. Deployment
+
+#### 11.1 Frontend
+- Build production con Vite
+- Deploy su Vercel/Netlify
+- CDN per assets statici
+
+#### 11.2 Backend
+- Container Docker
+- Deploy su AWS/Railway/Fly.io
+- Database managed (Supabase/Railway)
+
+#### 11.3 CI/CD
+- GitHub Actions
+- Automated testing
+- Automated deployment
+
+### 12. Prossimi Sviluppi
+
+- Sistema di messaggistica interna
+- Calendario prestiti
+- Sistema di recensioni
+- App mobile nativa (React Native)
+- Integrazione social sharing
+- Gamification (badges, achievements)
+- Gruppi di lettura geografici
+
+### 13. Conclusioni
+
+BiblioShare rappresenta una soluzione completa per la condivisione del patrimonio librario privato,
+combinando funzionalità di geolocalizzazione avanzate con un&#39;interfaccia utente intuitiva e accessibile.
+L&#39;architettura modulare e scalabile permette future espansioni, mentre l&#39;attenzione a privacy e sicurezza
+garantisce la protezione dei dati degli utenti.

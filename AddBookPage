@@ -1,0 +1,307 @@
+import { useState } from &#39;react&#39;;
+import { Button } from &#39;@/app/components/ui/button&#39;;
+import { Input } from &#39;@/app/components/ui/input&#39;;
+import { Label } from &#39;@/app/components/ui/label&#39;;
+import { Textarea } from &#39;@/app/components/ui/textarea&#39;;
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectValue,
+} from &#39;@/app/components/ui/select&#39;;
+import { Card, CardContent, CardHeader, CardTitle } from &#39;@/app/components/ui/card&#39;;
+import { Badge } from &#39;@/app/components/ui/badge&#39;;
+import { ArrowLeft, Upload, X } from &#39;lucide-react&#39;;
+import { Link, useNavigate } from &#39;react-router-dom&#39;;
+import { categories } from &#39;@/data/mockData&#39;;
+import { toast } from &#39;sonner&#39;;
+
+export function AddBookPage() {
+const navigate = useNavigate();
+const [formData, setFormData] = useState({
+title: &#39;&#39;,
+author: &#39;&#39;,
+year: &#39;&#39;,
+isbn: &#39;&#39;,
+description: &#39;&#39;,
+condition: &#39;good&#39;,
+});
+const [selectedCategories, setSelectedCategories] = useState&lt;string[]&gt;([]);
+const [coverPreview, setCoverPreview] = useState&lt;string&gt;(&#39;&#39;);
+
+const handleInputChange = (
+e: React.ChangeEvent&lt;HTMLInputElement | HTMLTextAreaElement&gt;
+) =&gt; {
+setFormData({
+...formData,
+[e.target.name]: e.target.value,
+});
+};
+
+const handleAddCategory = (category: string) =&gt; {
+if (!selectedCategories.includes(category)) {
+setSelectedCategories([...selectedCategories, category]);
+}
+};
+
+const handleRemoveCategory = (category: string) =&gt; {
+setSelectedCategories(selectedCategories.filter((c) =&gt; c !== category));
+};
+
+const handleImageUpload = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; {
+const file = e.target.files?.[0];
+if (file) {
+const reader = new FileReader();
+reader.onloadend = () =&gt; {
+setCoverPreview(reader.result as string);
+};
+reader.readAsDataURL(file);
+}
+};
+
+const handleSubmit = (e: React.FormEvent) =&gt; {
+e.preventDefault();
+
+// Validate form
+if (!formData.title || !formData.author || !formData.year) {
+toast.error(&#39;Compila tutti i campi obbligatori&#39;);
+return;
+}
+
+if (selectedCategories.length === 0) {
+toast.error(&#39;Seleziona almeno una categoria&#39;);
+return;
+}
+
+// Simulate book creation
+toast.success(&#39;Libro aggiunto con successo!&#39;);
+setTimeout(() =&gt; {
+navigate(&#39;/my-library&#39;);
+}, 1000);
+};
+
+return (
+&lt;div className=&quot;min-h-screen bg-background&quot;&gt;
+{/* Header */}
+&lt;header className=&quot;border-b bg-white&quot;&gt;
+&lt;div className=&quot;container mx-auto px-4 py-4&quot;&gt;
+&lt;Link to=&quot;/my-library&quot;&gt;
+&lt;Button variant=&quot;ghost&quot; size=&quot;sm&quot;&gt;
+&lt;ArrowLeft className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Torna alla biblioteca
+&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main className=&quot;container mx-auto px-4 py-8 max-w-3xl&quot;&gt;
+&lt;div className=&quot;mb-8&quot;&gt;
+&lt;h1 className=&quot;text-3xl font-bold mb-2&quot;&gt;Aggiungi un Libro&lt;/h1&gt;
+&lt;p className=&quot;text-muted-foreground&quot;&gt;
+Condividi un libro della tua collezione con la community
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;form onSubmit={handleSubmit} className=&quot;space-y-6&quot;&gt;
+{/* Cover Image Upload */}
+&lt;Card&gt;
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Copertina&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;flex flex-col items-center gap-4&quot;&gt;
+{coverPreview ? (
+&lt;div className=&quot;relative&quot;&gt;
+&lt;img
+src={coverPreview}
+alt=&quot;Preview&quot;
+className=&quot;w-48 h-64 object-cover rounded-lg&quot;
+/&gt;
+&lt;Button
+type=&quot;button&quot;
+variant=&quot;destructive&quot;
+size=&quot;icon&quot;
+className=&quot;absolute top-2 right-2&quot;
+onClick={() =&gt; setCoverPreview(&#39;&#39;)}
+&gt;
+&lt;X className=&quot;w-4 h-4&quot; /&gt;
+
+&lt;/Button&gt;
+&lt;/div&gt;
+) : (
+&lt;div className=&quot;w-48 h-64 border-2 border-dashed rounded-lg flex items-center justify-center&quot;&gt;
+&lt;Upload className=&quot;w-8 h-8 text-muted-foreground&quot; /&gt;
+&lt;/div&gt;
+)}
+&lt;Label htmlFor=&quot;cover&quot; className=&quot;cursor-pointer&quot;&gt;
+&lt;Button type=&quot;button&quot; variant=&quot;outline&quot; asChild&gt;
+&lt;span&gt;
+&lt;Upload className=&quot;w-4 h-4 mr-2&quot; /&gt;
+{coverPreview ? &#39;Cambia copertina&#39; : &#39;Carica copertina&#39;}
+&lt;/span&gt;
+&lt;/Button&gt;
+&lt;/Label&gt;
+&lt;Input
+id=&quot;cover&quot;
+type=&quot;file&quot;
+accept=&quot;image/*&quot;
+className=&quot;hidden&quot;
+onChange={handleImageUpload}
+/&gt;
+&lt;/div&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+{/* Book Information */}
+&lt;Card&gt;
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Informazioni Libro&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent className=&quot;space-y-4&quot;&gt;
+
+&lt;div&gt;
+&lt;Label htmlFor=&quot;title&quot;&gt;
+Titolo &lt;span className=&quot;text-destructive&quot;&gt;*&lt;/span&gt;
+&lt;/Label&gt;
+&lt;Input
+id=&quot;title&quot;
+name=&quot;title&quot;
+placeholder=&quot;Il Nome della Rosa&quot;
+value={formData.title}
+onChange={handleInputChange}
+required
+/&gt;
+&lt;/div&gt;
+
+&lt;div className=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+&lt;div&gt;
+&lt;Label htmlFor=&quot;author&quot;&gt;
+Autore &lt;span className=&quot;text-destructive&quot;&gt;*&lt;/span&gt;
+&lt;/Label&gt;
+&lt;Input
+id=&quot;author&quot;
+name=&quot;author&quot;
+placeholder=&quot;Umberto Eco&quot;
+value={formData.author}
+onChange={handleInputChange}
+required
+/&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+&lt;Label htmlFor=&quot;year&quot;&gt;
+Anno di pubblicazione &lt;span className=&quot;text-destructive&quot;&gt;*&lt;/span&gt;
+
+&lt;/Label&gt;
+&lt;Input
+id=&quot;year&quot;
+name=&quot;year&quot;
+type=&quot;number&quot;
+placeholder=&quot;1980&quot;
+value={formData.year}
+onChange={handleInputChange}
+required
+/&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+&lt;Label htmlFor=&quot;isbn&quot;&gt;ISBN (opzionale)&lt;/Label&gt;
+&lt;Input
+id=&quot;isbn&quot;
+name=&quot;isbn&quot;
+placeholder=&quot;978-88-452-1070-4&quot;
+value={formData.isbn}
+onChange={handleInputChange}
+/&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+&lt;Label htmlFor=&quot;description&quot;&gt;Descrizione&lt;/Label&gt;
+&lt;Textarea
+id=&quot;description&quot;
+name=&quot;description&quot;
+placeholder=&quot;Breve descrizione del libro...&quot;
+rows={4}
+value={formData.description}
+
+onChange={handleInputChange}
+/&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+&lt;Label htmlFor=&quot;condition&quot;&gt;Condizione&lt;/Label&gt;
+&lt;Select
+value={formData.condition}
+onValueChange={(value) =&gt;
+setFormData({ ...formData, condition: value })
+}
+&gt;
+&lt;SelectTrigger&gt;
+&lt;SelectValue /&gt;
+&lt;/SelectTrigger&gt;
+&lt;SelectContent&gt;
+&lt;SelectItem value=&quot;excellent&quot;&gt;Eccellente&lt;/SelectItem&gt;
+&lt;SelectItem value=&quot;good&quot;&gt;Buona&lt;/SelectItem&gt;
+&lt;SelectItem value=&quot;fair&quot;&gt;Discreta&lt;/SelectItem&gt;
+&lt;SelectItem value=&quot;poor&quot;&gt;Scarsa&lt;/SelectItem&gt;
+&lt;/SelectContent&gt;
+&lt;/Select&gt;
+&lt;/div&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+{/* Categories */}
+&lt;Card&gt;
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Categorie &lt;span className=&quot;text-destructive&quot;&gt;*&lt;/span&gt;&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent className=&quot;space-y-4&quot;&gt;
+
+&lt;Select onValueChange={handleAddCategory}&gt;
+&lt;SelectTrigger&gt;
+&lt;SelectValue placeholder=&quot;Seleziona una categoria&quot; /&gt;
+&lt;/SelectTrigger&gt;
+&lt;SelectContent&gt;
+{categories.map((category) =&gt; (
+&lt;SelectItem key={category} value={category}&gt;
+{category}
+&lt;/SelectItem&gt;
+))}
+&lt;/SelectContent&gt;
+&lt;/Select&gt;
+
+{selectedCategories.length &gt; 0 &amp;&amp; (
+&lt;div className=&quot;flex flex-wrap gap-2&quot;&gt;
+{selectedCategories.map((category) =&gt; (
+&lt;Badge key={category} variant=&quot;secondary&quot;&gt;
+{category}
+&lt;button
+type=&quot;button&quot;
+onClick={() =&gt; handleRemoveCategory(category)}
+className=&quot;ml-2 hover:text-destructive&quot;
+&gt;
+&lt;X className=&quot;w-3 h-3&quot; /&gt;
+&lt;/button&gt;
+&lt;/Badge&gt;
+))}
+&lt;/div&gt;
+)}
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+{/* Submit Buttons */}
+&lt;div className=&quot;flex gap-4 justify-end&quot;&gt;
+&lt;Link to=&quot;/my-library&quot;&gt;
+&lt;Button type=&quot;button&quot; variant=&quot;outline&quot;&gt;
+Annulla
+&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;Button type=&quot;submit&quot;&gt;Pubblica Libro&lt;/Button&gt;
+&lt;/div&gt;
+&lt;/form&gt;
+&lt;/main&gt;
+&lt;/div&gt;
+);
+}

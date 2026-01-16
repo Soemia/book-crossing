@@ -1,0 +1,70 @@
+import { MapContainer, TileLayer, Marker, Popup } from &#39;react-leaflet&#39;;
+import { Book } from &#39;@/types/book&#39;;
+import { Avatar, AvatarImage, AvatarFallback } from &#39;@/app/components/ui/avatar&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+import &#39;leaflet/dist/leaflet.css&#39;;
+import { useEffect } from &#39;react&#39;;
+import L from &#39;leaflet&#39;;
+
+// Fix for default marker icons in React-Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+iconRetinaUrl: &#39;https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png&#39;,
+iconUrl: &#39;https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png&#39;,
+shadowUrl: &#39;https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png&#39;,
+});
+
+interface MapViewProps {
+books: Book[];
+center?: [number, number];
+}
+
+export function MapView({ books, center = [41.8919, 12.5113] }: MapViewProps) {
+return (
+&lt;MapContainer
+center={center}
+zoom={12}
+className=&quot;h-full w-full rounded-lg&quot;
+style={{ minHeight: &#39;400px&#39; }}
+&gt;
+&lt;TileLayer
+attribution=&#39;&amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/copyright&quot;&gt;OpenStreetMap&lt;/a&gt;
+contributors&#39;
+
+url=&quot;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&quot;
+/&gt;
+{books.map((book) =&gt; (
+&lt;Marker
+key={book.id}
+position={[book.owner.location.lat, book.owner.location.lng]}
+&gt;
+&lt;Popup&gt;
+&lt;div className=&quot;p-2&quot;&gt;
+&lt;Link to={`/book/${book.id}`} className=&quot;block&quot;&gt;
+&lt;div className=&quot;flex gap-3&quot;&gt;
+&lt;img
+src={book.cover}
+alt={book.title}
+className=&quot;w-16 h-24 object-cover rounded&quot;
+/&gt;
+&lt;div&gt;
+&lt;h4 className=&quot;font-semibold text-sm mb-1&quot;&gt;{book.title}&lt;/h4&gt;
+&lt;p className=&quot;text-xs text-gray-600 mb-2&quot;&gt;{book.author}&lt;/p&gt;
+&lt;div className=&quot;flex items-center gap-2&quot;&gt;
+&lt;Avatar className=&quot;w-5 h-5&quot;&gt;
+&lt;AvatarImage src={book.owner.avatar} /&gt;
+&lt;AvatarFallback&gt;{book.owner.name[0]}&lt;/AvatarFallback&gt;
+&lt;/Avatar&gt;
+&lt;span className=&quot;text-xs&quot;&gt;{book.owner.name}&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+&lt;/Popup&gt;
+&lt;/Marker&gt;
+
+))}
+&lt;/MapContainer&gt;
+);
+}

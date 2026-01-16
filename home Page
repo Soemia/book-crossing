@@ -1,0 +1,122 @@
+import { useState } from &#39;react&#39;;
+import { SearchBar } from &#39;@/app/components/SearchBar&#39;;
+import { BookCard } from &#39;@/app/components/BookCard&#39;;
+import { MapView } from &#39;@/app/components/MapView&#39;;
+import { mockBooks } from &#39;@/data/mockData&#39;;
+import { Tabs, TabsContent, TabsList, TabsTrigger } from &#39;@/app/components/ui/tabs&#39;;
+import { Button } from &#39;@/app/components/ui/button&#39;;
+import { LayoutGrid, Map, Plus } from &#39;lucide-react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+
+export function HomePage() {
+const [books, setBooks] = useState(mockBooks);
+const [view, setView] = useState&lt;&#39;grid&#39; | &#39;map&#39;&gt;(&#39;grid&#39;);
+
+const handleSearch = (query: string, category: string, distance: string) =&gt; {
+// Filter books based on search criteria
+let filtered = mockBooks;
+
+if (query) {
+filtered = filtered.filter(
+(book) =&gt;
+book.title.toLowerCase().includes(query.toLowerCase()) ||
+book.author.toLowerCase().includes(query.toLowerCase()) ||
+book.categories.some((cat) =&gt;
+cat.toLowerCase().includes(query.toLowerCase())
+)
+);
+}
+
+if (category &amp;&amp; category !== &#39;all&#39;) {
+filtered = filtered.filter((book) =&gt;
+book.categories.some((cat) =&gt; cat.toLowerCase() === category)
+
+);
+}
+
+setBooks(filtered);
+};
+
+return (
+&lt;div className=&quot;min-h-screen bg-background&quot;&gt;
+{/* Header */}
+&lt;header className=&quot;border-b bg-white sticky top-0 z-10&quot;&gt;
+&lt;div className=&quot;container mx-auto px-4 py-4&quot;&gt;
+&lt;div className=&quot;flex items-center justify-between mb-4&quot;&gt;
+&lt;div&gt;
+&lt;h1 className=&quot;text-2xl font-bold text-primary&quot;&gt;BiblioShare&lt;/h1&gt;
+&lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;
+Condividi il tuo patrimonio librario
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex gap-2&quot;&gt;
+&lt;Link to=&quot;/my-library&quot;&gt;
+&lt;Button variant=&quot;outline&quot;&gt;La Mia Biblioteca&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;Link to=&quot;/add-book&quot;&gt;
+&lt;Button&gt;
+&lt;Plus className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Aggiungi Libro
+&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;SearchBar onSearch={handleSearch} /&gt;
+&lt;/div&gt;
+
+&lt;/header&gt;
+
+{/* Main Content */}
+&lt;main className=&quot;container mx-auto px-4 py-6&quot;&gt;
+&lt;div className=&quot;flex items-center justify-between mb-6&quot;&gt;
+&lt;div&gt;
+&lt;h2 className=&quot;text-xl font-semibold&quot;&gt;
+{books.length} libri disponibili
+&lt;/h2&gt;
+&lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;
+Vicino a te a Roma
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex gap-2&quot;&gt;
+&lt;Button
+variant={view === &#39;grid&#39; ? &#39;default&#39; : &#39;outline&#39;}
+size=&quot;sm&quot;
+onClick={() =&gt; setView(&#39;grid&#39;)}
+&gt;
+&lt;LayoutGrid className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Griglia
+&lt;/Button&gt;
+&lt;Button
+variant={view === &#39;map&#39; ? &#39;default&#39; : &#39;outline&#39;}
+size=&quot;sm&quot;
+onClick={() =&gt; setView(&#39;map&#39;)}
+&gt;
+&lt;Map className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Mappa
+&lt;/Button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+{view === &#39;grid&#39; ? (
+&lt;div className=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6&quot;&gt;
+{books.map((book) =&gt; (
+&lt;BookCard key={book.id} book={book} /&gt;
+))}
+&lt;/div&gt;
+) : (
+&lt;div className=&quot;h-[600px] rounded-lg overflow-hidden border&quot;&gt;
+&lt;MapView books={books} /&gt;
+&lt;/div&gt;
+)}
+
+{books.length === 0 &amp;&amp; (
+&lt;div className=&quot;text-center py-12&quot;&gt;
+&lt;p className=&quot;text-muted-foreground&quot;&gt;
+Nessun libro trovato. Prova a modificare i filtri di ricerca.
+&lt;/p&gt;
+&lt;/div&gt;
+)}
+&lt;/main&gt;
+&lt;/div&gt;
+);
+}

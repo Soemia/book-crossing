@@ -1,0 +1,227 @@
+import { Book, User, Statistics } from &#39;@/types/book&#39;;
+
+// Mock users
+export const mockUsers: User[] = [
+{
+id: &#39;1&#39;,
+name: &#39;Sofia Rossi&#39;,
+email: &#39;sofia.rossi@example.com&#39;,
+avatar: &#39;https://i.pravatar.cc/150?img=1&#39;,
+location: {
+lat: 41.8919, // Rome
+lng: 12.5113,
+address: &#39;Via del Corso, Roma&#39;
+},
+booksCount: 24,
+rating: 4.8
+},
+{
+id: &#39;2&#39;,
+name: &#39;Marco Bianchi&#39;,
+email: &#39;marco.bianchi@example.com&#39;,
+avatar: &#39;https://i.pravatar.cc/150?img=12&#39;,
+location: {
+lat: 41.9028,
+lng: 12.4964,
+address: &#39;Trastevere, Roma&#39;
+},
+booksCount: 18,
+rating: 4.5
+},
+{
+id: &#39;3&#39;,
+
+name: &#39;Giulia Ferrari&#39;,
+email: &#39;giulia.ferrari@example.com&#39;,
+avatar: &#39;https://i.pravatar.cc/150?img=5&#39;,
+location: {
+lat: 41.8986,
+lng: 12.4768,
+address: &#39;Testaccio, Roma&#39;
+},
+booksCount: 32,
+rating: 4.9
+},
+{
+id: &#39;4&#39;,
+name: &#39;Alessandro Conti&#39;,
+email: &#39;alessandro.conti@example.com&#39;,
+avatar: &#39;https://i.pravatar.cc/150?img=13&#39;,
+location: {
+lat: 41.9109,
+lng: 12.4818,
+address: &#39;Prati, Roma&#39;
+},
+booksCount: 15,
+rating: 4.3
+}
+];
+
+// Mock books
+export const mockBooks: Book[] = [
+{
+id: &#39;1&#39;,
+title: &#39;Il Nome della Rosa&#39;,
+author: &#39;Umberto Eco&#39;,
+
+year: 1980,
+isbn: &#39;978-88-452-1070-4&#39;,
+cover: &#39;https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Fiction&#39;, &#39;Mystery&#39;, &#39;Historical&#39;],
+description: &#39;Un thriller medievale ambientato in un\&#39;abbazia benedettina.&#39;,
+condition: &#39;good&#39;,
+owner: mockUsers[0],
+views: 156,
+loanRequests: 8,
+available: true,
+createdAt: new Date(&#39;2024-01-15&#39;)
+},
+{
+id: &#39;2&#39;,
+title: &#39;Se questo è un uomo&#39;,
+author: &#39;Primo Levi&#39;,
+year: 1947,
+isbn: &#39;978-88-06-21457-0&#39;,
+cover: &#39;https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Memoir&#39;, &#39;History&#39;, &#39;WWII&#39;],
+description: &#39;La testimonianza di Primo Levi sulla sua deportazione ad Auschwitz.&#39;,
+condition: &#39;excellent&#39;,
+owner: mockUsers[1],
+views: 234,
+loanRequests: 12,
+available: true,
+createdAt: new Date(&#39;2024-01-10&#39;)
+},
+{
+id: &#39;3&#39;,
+title: &#39;I Promessi Sposi&#39;,
+author: &#39;Alessandro Manzoni&#39;,
+
+year: 1827,
+isbn: &#39;978-88-04-66115-8&#39;,
+cover: &#39;https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Classic&#39;, &#39;Romance&#39;, &#39;Historical&#39;],
+description: &#39;Il capolavoro della letteratura italiana.&#39;,
+condition: &#39;fair&#39;,
+owner: mockUsers[2],
+views: 189,
+loanRequests: 5,
+available: true,
+createdAt: new Date(&#39;2024-01-20&#39;)
+},
+{
+id: &#39;4&#39;,
+title: &#39;La Divina Commedia&#39;,
+author: &#39;Dante Alighieri&#39;,
+year: 1320,
+isbn: &#39;978-88-17-12622-6&#39;,
+cover: &#39;https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Poetry&#39;, &#39;Classic&#39;, &#39;Epic&#39;],
+description: &#39;Il viaggio di Dante attraverso Inferno, Purgatorio e Paradiso.&#39;,
+condition: &#39;good&#39;,
+owner: mockUsers[3],
+views: 298,
+loanRequests: 15,
+available: false,
+createdAt: new Date(&#39;2024-01-05&#39;)
+},
+{
+id: &#39;5&#39;,
+title: &#39;Cent\&#39;anni di solitudine&#39;,
+author: &#39;Gabriel García Márquez&#39;,
+
+year: 1967,
+cover: &#39;https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Fiction&#39;, &#39;Magical Realism&#39;, &#39;Classic&#39;],
+description: &#39;La saga della famiglia Buendía attraverso sette generazioni.&#39;,
+condition: &#39;excellent&#39;,
+owner: mockUsers[0],
+views: 167,
+loanRequests: 9,
+available: true,
+createdAt: new Date(&#39;2024-01-18&#39;)
+},
+{
+id: &#39;6&#39;,
+title: &#39;Il Piccolo Principe&#39;,
+author: &#39;Antoine de Saint-Exupéry&#39;,
+year: 1943,
+cover: &#39;https://images.unsplash.com/photo-1491841573634-28140fc7ced7?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Fiction&#39;, &#39;Children&#39;, &#39;Philosophy&#39;],
+description: &#39;Una favola poetica e filosofica per bambini e adulti.&#39;,
+condition: &#39;good&#39;,
+owner: mockUsers[1],
+views: 210,
+loanRequests: 11,
+available: true,
+createdAt: new Date(&#39;2024-01-12&#39;)
+},
+{
+id: &#39;7&#39;,
+title: &#39;1984&#39;,
+author: &#39;George Orwell&#39;,
+year: 1949,
+cover: &#39;https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&amp;h=450&amp;fit=crop&#39;,
+
+categories: [&#39;Dystopian&#39;, &#39;Science Fiction&#39;, &#39;Political&#39;],
+description: &#39;Una distopia sul totalitarismo e la sorveglianza di massa.&#39;,
+condition: &#39;excellent&#39;,
+owner: mockUsers[2],
+views: 342,
+loanRequests: 18,
+available: true,
+createdAt: new Date(&#39;2024-01-08&#39;)
+},
+{
+id: &#39;8&#39;,
+title: &#39;L\&#39;Alchimista&#39;,
+author: &#39;Paulo Coelho&#39;,
+year: 1988,
+cover: &#39;https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=300&amp;h=450&amp;fit=crop&#39;,
+categories: [&#39;Fiction&#39;, &#39;Philosophical&#39;, &#39;Adventure&#39;],
+description: &#39;Il viaggio di Santiago alla ricerca del suo tesoro personale.&#39;,
+condition: &#39;good&#39;,
+owner: mockUsers[3],
+views: 178,
+loanRequests: 7,
+available: true,
+createdAt: new Date(&#39;2024-01-22&#39;)
+}
+];
+
+// Mock statistics
+export const mockStatistics: Statistics = {
+totalBooks: 127,
+totalViews: 3456,
+totalLoanRequests: 234,
+totalUsers: 42,
+
+recentActivity: [
+{ date: &#39;2024-01-23&#39;, views: 45, requests: 8 },
+{ date: &#39;2024-01-22&#39;, views: 52, requests: 6 },
+{ date: &#39;2024-01-21&#39;, views: 38, requests: 10 },
+{ date: &#39;2024-01-20&#39;, views: 61, requests: 12 },
+{ date: &#39;2024-01-19&#39;, views: 47, requests: 9 },
+{ date: &#39;2024-01-18&#39;, views: 55, requests: 7 },
+{ date: &#39;2024-01-17&#39;, views: 42, requests: 11 }
+]
+};
+
+export const categories = [
+&#39;Fiction&#39;,
+&#39;Non-Fiction&#39;,
+&#39;Mystery&#39;,
+&#39;Romance&#39;,
+&#39;Science Fiction&#39;,
+&#39;Fantasy&#39;,
+&#39;Thriller&#39;,
+&#39;Biography&#39;,
+&#39;History&#39;,
+&#39;Philosophy&#39;,
+&#39;Poetry&#39;,
+&#39;Drama&#39;,
+&#39;Children&#39;,
+&#39;Young Adult&#39;,
+&#39;Classic&#39;,
+&#39;Contemporary&#39;
+];

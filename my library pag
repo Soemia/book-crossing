@@ -1,0 +1,214 @@
+import { useState } from &#39;react&#39;;
+import { mockBooks, mockStatistics } from &#39;@/data/mockData&#39;;
+import { BookCard } from &#39;@/app/components/BookCard&#39;;
+import { Card, CardContent, CardHeader, CardTitle } from &#39;@/app/components/ui/card&#39;;
+import { Tabs, TabsContent, TabsList, TabsTrigger } from &#39;@/app/components/ui/tabs&#39;;
+import { Button } from &#39;@/app/components/ui/button&#39;;
+import { ArrowLeft, BookOpen, Eye, MessageSquare, Users } from &#39;lucide-react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from &#39;recharts&#39;;
+
+export function MyLibraryPage() {
+// Filter books owned by current user (for demo, we&#39;ll use first user&#39;s books)
+const myBooks = mockBooks.filter((book) =&gt; book.owner.id === &#39;1&#39;);
+const stats = mockStatistics;
+
+return (
+&lt;div className=&quot;min-h-screen bg-background&quot;&gt;
+{/* Header */}
+&lt;header className=&quot;border-b bg-white&quot;&gt;
+&lt;div className=&quot;container mx-auto px-4 py-4&quot;&gt;
+&lt;Link to=&quot;/&quot;&gt;
+&lt;Button variant=&quot;ghost&quot; size=&quot;sm&quot;&gt;
+&lt;ArrowLeft className=&quot;w-4 h-4 mr-2&quot; /&gt;
+Torna alla home
+&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main className=&quot;container mx-auto px-4 py-8&quot;&gt;
+&lt;div className=&quot;mb-8&quot;&gt;
+&lt;h1 className=&quot;text-3xl font-bold mb-2&quot;&gt;La Mia Biblioteca&lt;/h1&gt;
+
+&lt;p className=&quot;text-muted-foreground&quot;&gt;
+Gestisci i tuoi libri e monitora le statistiche
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;Tabs defaultValue=&quot;books&quot; className=&quot;space-y-6&quot;&gt;
+&lt;TabsList&gt;
+&lt;TabsTrigger value=&quot;books&quot;&gt;I Miei Libri&lt;/TabsTrigger&gt;
+&lt;TabsTrigger value=&quot;stats&quot;&gt;Statistiche&lt;/TabsTrigger&gt;
+&lt;TabsTrigger value=&quot;requests&quot;&gt;Richieste&lt;/TabsTrigger&gt;
+&lt;/TabsList&gt;
+
+&lt;TabsContent value=&quot;books&quot; className=&quot;space-y-6&quot;&gt;
+&lt;div className=&quot;flex items-center justify-between&quot;&gt;
+&lt;h2 className=&quot;text-xl font-semibold&quot;&gt;
+{myBooks.length} libri nella tua collezione
+&lt;/h2&gt;
+&lt;Link to=&quot;/add-book&quot;&gt;
+&lt;Button&gt;Aggiungi Libro&lt;/Button&gt;
+&lt;/Link&gt;
+&lt;/div&gt;
+
+&lt;div className=&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6&quot;&gt;
+{myBooks.map((book) =&gt; (
+&lt;BookCard key={book.id} book={book} /&gt;
+))}
+&lt;/div&gt;
+&lt;/TabsContent&gt;
+
+&lt;TabsContent value=&quot;stats&quot; className=&quot;space-y-6&quot;&gt;
+{/* Summary Cards */}
+&lt;div className=&quot;grid grid-cols-1 md:grid-cols-4 gap-4&quot;&gt;
+
+&lt;Card&gt;
+&lt;CardHeader className=&quot;flex flex-row items-center justify-between space-y-0 pb-2&quot;&gt;
+&lt;CardTitle className=&quot;text-sm font-medium&quot;&gt;Libri Totali&lt;/CardTitle&gt;
+&lt;BookOpen className=&quot;h-4 w-4 text-muted-foreground&quot; /&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;text-2xl font-bold&quot;&gt;{myBooks.length}&lt;/div&gt;
+&lt;p className=&quot;text-xs text-muted-foreground&quot;&gt;nella tua collezione&lt;/p&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+&lt;Card&gt;
+&lt;CardHeader className=&quot;flex flex-row items-center justify-between space-y-0 pb-2&quot;&gt;
+&lt;CardTitle className=&quot;text-sm font-medium&quot;&gt;Visualizzazioni&lt;/CardTitle&gt;
+&lt;Eye className=&quot;h-4 w-4 text-muted-foreground&quot; /&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;text-2xl font-bold&quot;&gt;
+{myBooks.reduce((sum, book) =&gt; sum + book.views, 0)}
+&lt;/div&gt;
+&lt;p className=&quot;text-xs text-muted-foreground&quot;&gt;negli ultimi 30 giorni&lt;/p&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+&lt;Card&gt;
+&lt;CardHeader className=&quot;flex flex-row items-center justify-between space-y-0 pb-2&quot;&gt;
+&lt;CardTitle className=&quot;text-sm font-medium&quot;&gt;Richieste&lt;/CardTitle&gt;
+&lt;MessageSquare className=&quot;h-4 w-4 text-muted-foreground&quot; /&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;text-2xl font-bold&quot;&gt;
+{myBooks.reduce((sum, book) =&gt; sum + book.loanRequests, 0)}
+
+&lt;/div&gt;
+&lt;p className=&quot;text-xs text-muted-foreground&quot;&gt;richieste di prestito&lt;/p&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+&lt;Card&gt;
+&lt;CardHeader className=&quot;flex flex-row items-center justify-between space-y-0 pb-2&quot;&gt;
+&lt;CardTitle className=&quot;text-sm font-medium&quot;&gt;Utenti Raggiunti&lt;/CardTitle&gt;
+&lt;Users className=&quot;h-4 w-4 text-muted-foreground&quot; /&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;text-2xl font-bold&quot;&gt;142&lt;/div&gt;
+&lt;p className=&quot;text-xs text-muted-foreground&quot;&gt;utenti unici&lt;/p&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+&lt;/div&gt;
+
+{/* Activity Chart */}
+&lt;Card&gt;
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Attività Recente&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;ResponsiveContainer width=&quot;100%&quot; height={300}&gt;
+&lt;LineChart data={stats.recentActivity}&gt;
+&lt;CartesianGrid strokeDasharray=&quot;3 3&quot; /&gt;
+&lt;XAxis dataKey=&quot;date&quot; /&gt;
+&lt;YAxis /&gt;
+&lt;Tooltip /&gt;
+&lt;Line
+type=&quot;monotone&quot;
+dataKey=&quot;views&quot;
+
+stroke=&quot;#8b5cf6&quot;
+strokeWidth={2}
+name=&quot;Visualizzazioni&quot;
+/&gt;
+&lt;Line
+type=&quot;monotone&quot;
+dataKey=&quot;requests&quot;
+stroke=&quot;#10b981&quot;
+strokeWidth={2}
+name=&quot;Richieste&quot;
+/&gt;
+&lt;/LineChart&gt;
+&lt;/ResponsiveContainer&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+
+{/* Top Books */}
+&lt;Card&gt;
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Libri Più Popolari&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;space-y-4&quot;&gt;
+{myBooks
+.sort((a, b) =&gt; b.views - a.views)
+.slice(0, 3)
+.map((book, index) =&gt; (
+&lt;div
+key={book.id}
+className=&quot;flex items-center gap-4 p-3 rounded-lg border&quot;
+&gt;
+&lt;div className=&quot;text-2xl font-bold text-muted-foreground w-8&quot;&gt;
+
+#{index + 1}
+&lt;/div&gt;
+&lt;img
+src={book.cover}
+alt={book.title}
+className=&quot;w-12 h-16 object-cover rounded&quot;
+/&gt;
+&lt;div className=&quot;flex-1&quot;&gt;
+&lt;h4 className=&quot;font-semibold&quot;&gt;{book.title}&lt;/h4&gt;
+&lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;
+{book.author}
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div className=&quot;text-right&quot;&gt;
+&lt;div className=&quot;flex items-center gap-1 text-sm&quot;&gt;
+&lt;Eye className=&quot;w-4 h-4&quot; /&gt;
+&lt;span&gt;{book.views}&lt;/span&gt;
+&lt;/div&gt;
+&lt;div className=&quot;flex items-center gap-1 text-sm text-muted-foreground&quot;&gt;
+&lt;MessageSquare className=&quot;w-3 h-3&quot; /&gt;
+&lt;span&gt;{book.loanRequests}&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+))}
+&lt;/div&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+&lt;/TabsContent&gt;
+
+&lt;TabsContent value=&quot;requests&quot;&gt;
+&lt;Card&gt;
+
+&lt;CardHeader&gt;
+&lt;CardTitle&gt;Richieste di Prestito&lt;/CardTitle&gt;
+&lt;/CardHeader&gt;
+&lt;CardContent&gt;
+&lt;div className=&quot;text-center py-12 text-muted-foreground&quot;&gt;
+&lt;MessageSquare className=&quot;w-12 h-12 mx-auto mb-4 opacity-50&quot; /&gt;
+&lt;p&gt;Non hai richieste di prestito al momento.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/CardContent&gt;
+&lt;/Card&gt;
+&lt;/TabsContent&gt;
+&lt;/Tabs&gt;
+&lt;/main&gt;
+&lt;/div&gt;
+);
+}
